@@ -27,13 +27,15 @@ frecuencia_absoluta = {i: valores.count(i) for i in range(0,37)}
 # Calcular la frecuencia relativa de cada valor
 frecuencia_relativa  = {i: frecuencia_absoluta[i] / num_valores for i in range(0,37)}
 
-y1= list(range(10))
-x1= list(range(num_valores))
+y1= list()
+for i in range(0,37):
+    y1.append(frecuencia_relativa[i])
+x1= list(range(37))
 
 # Crear el gráfico
 plt.figure(figsize=(10, 6))
 plt.plot(x1, y1, color='red')
-plt.xlabel('Número de tirada')
+plt.xlabel('Número de la ruleta')
 plt.ylabel('Frecuencia relativa')
 plt.title('Frecuencia relativa')
 plt.legend()
@@ -48,3 +50,7 @@ for i in range(0,37):
     print(f"Frecuencia relativa de {i}:", frecuencia_relativa[i])
 
 print(f'Numeros de corridas {corridas}, Numero elegido: {numero_elegido}')
+
+
+
+
