@@ -1,6 +1,7 @@
 import random
 import sys
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def are_arguments_ok():
@@ -55,6 +56,7 @@ def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
     lista_graficos[0,0].legend()
     lista_graficos[0,0].grid(True)
 
+
     lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(valoresAleatorios),label='Promedio por número de tirada', color='red')
     lista_graficos[0,1].plot(x1,calcular_promedio_esperado(valoresAleatorios),linestyle='--',label='Promedio esperado', color='blue')
     lista_graficos[0,1].set_xlabel('Número de tirada')
@@ -62,6 +64,15 @@ def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
     lista_graficos[0,1].set_title('Promedio por tiradas')
     lista_graficos[0,1].legend()
     lista_graficos[0,1].grid(True)
+
+    lista_graficos[1,0].scatter(x1,calcular_desviacion_estandar_por_tirada(valoresAleatorios,numeroElegido),label='Desviación del número X por tirada', color='red')
+    lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(valoresAleatorios),linestyle='--',label='Desviación estandar esperada', color='blue')
+    lista_graficos[1,0].set_xlabel('Número de tirada')
+    lista_graficos[1,0].set_ylabel('Número')
+    lista_graficos[1,0].set_title('Promedio por tiradas')
+    lista_graficos[1,0].legend()
+    lista_graficos[1,0].grid(True)
+
     plt.show()
 
 def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
@@ -100,8 +111,33 @@ def calcular_numero_promedio_por_tirada(valoresAleatorios):
 
 
 def calcular_promedio_esperado(valoresAleatorios):
-    promedio = int(sum(valoresAleatorios)/len(valoresAleatorios))
+    promedio = int(np.average(valoresAleatorios))
     promedioEsperado = []
     for _ in range(len(valoresAleatorios)):
         promedioEsperado.append(promedio)
     return promedioEsperado
+
+
+def calcular_desviacion_estandar_por_tirada(valoresAleatorios,numeroElegido):
+    numeros = []
+    desviacionesPorTirada = []
+    desviacionEstandar = []
+    numeroDeTirada = 0
+    sumatoriaDesviaciones = 0
+    for numero in valoresAleatorios:
+        numeros.append(numero)
+        promedio = np.average(numeros)
+        desviacion = np.square(numeroElegido - promedio)
+        sumatoriaDesviaciones = sumatoriaDesviaciones + desviacion
+        desviacionEstandar.append(sumatoriaDesviaciones)
+        numeroDeTirada += 1
+        desviacionesPorTirada.append(np.sqrt(sumatoriaDesviaciones/numeroDeTirada))
+    return desviacionesPorTirada
+
+def calcular_desviacion_estandar_esperada(valoresAleatorios):
+    desviaciones = []
+    desviacionEstandar = np.std(valoresAleatorios)
+    print(f'Desviacion estandar {desviacionEstandar}')
+    for _ in range(len(valoresAleatorios)):
+        desviaciones.append(desviacionEstandar)
+    return desviaciones
