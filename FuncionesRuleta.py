@@ -40,8 +40,29 @@ def generate_plot(numeroDeTiradas,numeroElegido, valoresAleatorios):
     plt.title('Frecuencia relativa por tiradas')
     plt.legend()
     plt.grid(True)
-    plt.show()
+    return plt
+    
 
+
+def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
+    x1= list(range(1,numeroDeTiradas+1))
+    figura, lista_graficos = plt.subplots(nrows=2,ncols=2,figsize=(18, 6))
+    lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios),label='Frecuencia relativa por número de tirada', color='red')
+    lista_graficos[0,0].plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas,numeroElegido,valoresAleatorios),linestyle='--',label='Frecuencia relativa esperada', color='blue')
+    lista_graficos[0,0].set_xlabel('Número de tirada')
+    lista_graficos[0,0].set_ylabel('Frecuencia relativa')
+    lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
+    lista_graficos[0,0].legend()
+    lista_graficos[0,0].grid(True)
+
+    lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(valoresAleatorios),label='Promedio por número de tirada', color='red')
+    lista_graficos[0,1].plot(x1,calcular_promedio_esperado(valoresAleatorios),linestyle='--',label='Promedio esperado', color='blue')
+    lista_graficos[0,1].set_xlabel('Número de tirada')
+    lista_graficos[0,1].set_ylabel('Número')
+    lista_graficos[0,1].set_title('Promedio por tiradas')
+    lista_graficos[0,1].legend()
+    lista_graficos[0,1].grid(True)
+    plt.show()
 
 def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
     frecuencia_absoluta = 0
@@ -66,4 +87,21 @@ def calcular_frecuencia_relativa_esperada(numeroDeTiradas,numeroElegido,valoresA
         frecuencia_relativa.append(frecuencia_absoluta / len(valoresAleatorios))
     return frecuencia_relativa
 
+def calcular_numero_promedio_por_tirada(valoresAleatorios):
+    numeroDeTirada = 0
+    suma = 0
+    promedios = []
+    for numero in valoresAleatorios:
+        numeroDeTirada += 1
+        suma = suma + numero
+        promedio = int(suma / numeroDeTirada)
+        promedios.append(promedio)
+    return promedios
 
+
+def calcular_promedio_esperado(valoresAleatorios):
+    promedio = int(sum(valoresAleatorios)/len(valoresAleatorios))
+    promedioEsperado = []
+    for _ in range(len(valoresAleatorios)):
+        promedioEsperado.append(promedio)
+    return promedioEsperado
