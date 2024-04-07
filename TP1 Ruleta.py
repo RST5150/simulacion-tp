@@ -19,8 +19,22 @@ numero_elegido = int(sys.argv[6])
 # Generar los valores aleatorios entre 0 y 36 y almacenarlos en una lista
 valores = [random.randint(0, 37) for _ in range(num_valores)]
 
+def calcular_frecuencias_relativas_por_tiradas(numero_elegido,valores):
+    frecuencia_absoluta = 0
+    numero_tirada = 0
+    frecuencias_relativas_por_tirada = []
+    for numero in valores:
+        numero_tirada +=1
+        if numero_elegido == numero:
+            frecuencia_absoluta +=1 
+        frecuencia_relativa = frecuencia_absoluta / numero_tirada
+        frecuencias_relativas_por_tirada.append(frecuencia_relativa)  
+    return frecuencias_relativas_por_tirada
+
+
 # Calcular la frecuencia absoluta de cada valor
 frecuencia_absoluta = {i: valores.count(i) for i in range(0,37)}
+
 
 
 
@@ -30,14 +44,14 @@ frecuencia_relativa  = {i: frecuencia_absoluta[i] / num_valores for i in range(0
 y1= list()
 for i in range(0,37):
     y1.append(frecuencia_relativa[i])
-x1= list(range(37))
+x1= list(range(num_valores))
 
 # Crear el gráfico
 plt.figure(figsize=(10, 6))
-plt.plot(x1, y1, color='red')
-plt.xlabel('Número de la ruleta')
+plt.plot(x1, calcular_frecuencias_relativas_por_tiradas(numero_elegido,valores), color='red')
+plt.xlabel('Número de tirada')
 plt.ylabel('Frecuencia relativa')
-plt.title('Frecuencia relativa')
+plt.title('Frecuencia relativa por tiradas')
 plt.legend()
 plt.grid(True)
 plt.show()
@@ -51,6 +65,4 @@ for i in range(0,37):
 
 print(f'Numeros de corridas {corridas}, Numero elegido: {numero_elegido}')
 
-
-
-
+print(calcular_frecuencias_relativas_por_tiradas(numero_elegido,valores))
