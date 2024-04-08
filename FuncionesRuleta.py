@@ -73,7 +73,7 @@ def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
     lista_graficos[1,0].legend()
     lista_graficos[1,0].grid(True)
 
-    plt.show()
+    plt.show(block=False)
 
 def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
     frecuencia_absoluta = 0
