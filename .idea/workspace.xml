@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="07d056df-ab9f-4e23-a2c5-7764513595a5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/FuncionesRuleta.py" beforeDir="false" afterPath="$PROJECT_DIR$/FuncionesRuleta.py" afterDir="false" />
-    </list>
+    <list default="true" id="07d056df-ab9f-4e23-a2c5-7764513595a5" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

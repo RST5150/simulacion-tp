@@ -24,20 +24,6 @@ def generate_random_values(numeroDeTiradas):
     # Generar los valores aleatorios entre 0 y 36 y almacenarlos en una lista
     valores = [random.randint(0, 37) for _ in range(numeroDeTiradas)]
     return valores
-
-
-def generate_plot(numeroDeTiradas,numeroElegido, valoresAleatorios):
-    # Crear el gráfico
-    x1= list(range(numeroDeTiradas))
-    plt.figure(figsize=(10, 6))
-    plt.plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios),label='Frecuencia relativa por número de tirada', color='red')
-    plt.plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas,numeroElegido,valoresAleatorios),label='Frecuencia relativa esperada', color='blue')
-    plt.xlabel('Número de tirada')
-    plt.ylabel('Frecuencia relativa')
-    plt.title('Frecuencia relativa por tiradas')
-    plt.legend()
-    plt.grid(True)
-    return plt
     
 
 def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
@@ -60,7 +46,7 @@ def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
     lista_graficos[0,1].legend()
     lista_graficos[0,1].grid(True)
 
-    lista_graficos[1,0].scatter(x1,calcular_desviacion_estandar_por_tirada(valoresAleatorios,numeroElegido),label='Desviación del número X por tirada', color='red')
+    lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_por_tirada(valoresAleatorios,numeroElegido),label='Desviación del número X por tirada', color='red')
     lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(valoresAleatorios),linestyle='--',label='Desviación estandar esperada', color='blue')
     lista_graficos[1,0].set_xlabel('Número de tirada')
     lista_graficos[1,0].set_ylabel('Número')
@@ -123,13 +109,12 @@ def calcular_promedio_esperado(valoresAleatorios):
 
 
 def calcular_desviacion_estandar_por_tirada(valoresAleatorios, numeroElegido):
-    desviacionesPorTirada = []
-    sumatoriaDesviaciones = 0
-    for i, numero in enumerate(valoresAleatorios, 1):
-        sumatoriaDesviaciones += (numero - numeroElegido) ** 2
-        desviacionEstandar = np.sqrt(sumatoriaDesviaciones / i)
-        desviacionesPorTirada.append(desviacionEstandar)
-    return desviacionesPorTirada
+    desviaciones_por_tirada = []
+    for i in range(1, len(valoresAleatorios) + 1):
+        valores_tirada = np.array(valoresAleatorios[:i])
+        desviacion = np.std(valores_tirada)
+        desviaciones_por_tirada.append(desviacion)
+    return desviaciones_por_tirada
 
 
 def calcular_desviacion_estandar_esperada(valoresAleatorios):
@@ -142,26 +127,19 @@ def calcular_desviacion_estandar_esperada(valoresAleatorios):
 
 
 def calcular_varianza_esperada(numeroElegido, valoresAleatorios):
-    # Convertir la lista de valores aleatorios a un array NumPy
     valores_aleatorios = np.array(valoresAleatorios)
 
-    # Calcula la diferencia cuadrada entre cada valor aleatorio y el número elegido
     diferencias_cuadradas = (valores_aleatorios - numeroElegido) ** 2
 
-    # Calcula la varianza esperada
     varianza_esperada = np.mean(diferencias_cuadradas)
 
     return varianza_esperada
 
 
 def calcular_varianza_calculada(numeroElegido, valoresAleatorios, numeroDeTiradas):
-    # Convertir la lista de valores aleatorios a un array NumPy
     valores_aleatorios = np.array(valoresAleatorios)
-
-    # Inicializar una lista para almacenar las varianzas calculadas por tirada
     varianzas_calculadas = []
 
-    # Calcular la varianza por cada tirada
     for i in range(1, numeroDeTiradas + 1):
         diferencias_cuadradas = (valores_aleatorios[:i] - numeroElegido) ** 2
         varianza_calculada = np.mean(diferencias_cuadradas)
