@@ -27,43 +27,6 @@ def generate_random_values(numeroDeTiradas):
     return valores
     
 
-def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
-    x1= list(range(1,numeroDeTiradas+1))
-    figura, lista_graficos = plt.subplots(nrows=2,ncols=2,figsize=(18, 6))
-    lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios),label='Frecuencia relativa por número de tirada', color='red')
-    lista_graficos[0,0].plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas,numeroElegido,valoresAleatorios),linestyle='--',label='Frecuencia relativa esperada', color='blue')
-    lista_graficos[0,0].set_xlabel('Número de tirada')
-    lista_graficos[0,0].set_ylabel('Frecuencia relativa')
-    lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
-    lista_graficos[0,0].legend()
-    lista_graficos[0,0].grid(True)
-
-    lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(valoresAleatorios),label='Promedio por número de tirada', color='red')
-    lista_graficos[0,1].plot(x1,calcular_promedio_esperado(valoresAleatorios),linestyle='--',label='Promedio esperado', color='blue')
-    lista_graficos[0,1].set_xlabel('Número de tirada')
-    lista_graficos[0,1].set_ylabel('Número')
-    lista_graficos[0,1].set_title('Promedio por tiradas')
-    lista_graficos[0,1].legend()
-    lista_graficos[0,1].grid(True)
-
-    lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_por_tirada(valoresAleatorios,numeroElegido),label='Desviación del número X por tirada', color='red')
-    lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(valoresAleatorios),linestyle='--',label='Desviación estandar esperada', color='blue')
-    lista_graficos[1,0].set_xlabel('Número de tirada')
-    lista_graficos[1,0].set_ylabel('Número')
-    lista_graficos[1,0].set_title('Promedio por tiradas')
-    lista_graficos[1,0].legend()
-    lista_graficos[1,0].grid(True)
-
-    lista_graficos[1, 1].plot(x1, calcular_varianza_calculada(numeroElegido, valoresAleatorios, numeroDeTiradas), label='Varianza calculada', color='red')
-    lista_graficos[1, 1].axhline(y=calcular_varianza_esperada(numeroElegido, valoresAleatorios), color='blue', linestyle='--', label='Varianza esperada')
-    lista_graficos[1, 1].set_xlabel('Número de tirada')
-    lista_graficos[1, 1].set_ylabel('Valor de varianza')
-    lista_graficos[1, 1].set_title('Varianza esperada vs Varianza calculada en función del número de tiradas')
-    lista_graficos[1, 1].legend()
-    lista_graficos[1, 1].grid(True)
-
-    plt.show(block=False)
-
 def generate_layout_por_corridas(corridas):
     # Create layout
     # Dividir los números en sub-listas de longitud 4
