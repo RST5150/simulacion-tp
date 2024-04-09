@@ -2,6 +2,7 @@ import random
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 
 def are_arguments_ok():
@@ -63,6 +64,83 @@ def generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios):
 
     plt.show(block=False)
 
+def generate_layout_por_corridas(corridas):
+    # Create layout
+    # Dividir los números en sub-listas de longitud 4
+    sub_lists = [list(range(i, min(i + 4, corridas + 1))) for i in range(1, corridas + 1, 4)]
+
+    # Completar las últimas filas con el último número repetido si es necesario
+    if len(sub_lists[-1]) < 4:
+        sub_lists[-1].extend([sub_lists[-1][-1]] * (4 - len(sub_lists[-1])))
+
+    # Crear el layout final
+    layout = [[str(num) for num in row] for row in sub_lists]
+
+    fig, axd = plt.subplot_mosaic(layout)
+    return fig, axd
+
+def generate_frecuencia_relativa_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios):
+    x1 = list(range(1,numeroDeTiradas+1))
+    fig, axd = generate_layout_por_corridas(corridas)
+    for i in range(1,corridas+1):
+        axd[f'{i}'].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios[i-1]),label='Frecuencia relativa por número de tirada', color='red')
+        axd[f'{i}'].plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas,numeroElegido,valoresAleatorios[i-1]),linestyle='--',label='Frecuencia relativa esperada', color='blue')
+        axd[f'{i}'].set_xlabel('Número de tirada')
+        axd[f'{i}'].set_ylabel('Frecuencia relativa')
+        axd[f'{i}'].set_title(f'Gráfico {i}')
+    fig.suptitle('Frecuencia relativa por tiradas', fontsize=16)
+    plt.tight_layout()
+    plt.show(block=False)
+
+
+def generate_promedio_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios):
+    x1 = list(range(1,numeroDeTiradas+1))
+    fig, axd = generate_layout_por_corridas(corridas)
+    for i in range(1,corridas+1):
+        axd[f'{i}'].plot(x1, calcular_numero_promedio_por_tirada(valoresAleatorios[i-1]),label='Frecuencia relativa por número de tirada', color='red')
+        axd[f'{i}'].plot(x1,calcular_promedio_esperado(valoresAleatorios[i-1]),linestyle='--',label='Frecuencia relativa esperada', color='blue')
+        axd[f'{i}'].set_xlabel('Número de tirada')
+        axd[f'{i}'].set_ylabel('Número Promedio')
+        axd[f'{i}'].set_title(f'Gráfico {i}')
+    fig.suptitle('Número promedio por tirada', fontsize=16)
+    plt.tight_layout()
+    plt.show(block=False)
+
+def generate_desviacion_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios):
+    x1 = list(range(1,numeroDeTiradas+1))
+    fig, axd = generate_layout_por_corridas(corridas)
+    for i in range(1,corridas+1):
+        axd[f'{i}'].plot(x1, calcular_desviacion_estandar_por_tirada(valoresAleatorios[i-1],numeroElegido),label='Frecuencia relativa por número de tirada', color='red')
+        axd[f'{i}'].plot(x1,calcular_desviacion_estandar_esperada(valoresAleatorios[i-1]),linestyle='--',label='Frecuencia relativa esperada', color='blue')
+        axd[f'{i}'].set_xlabel('Número de tirada')
+        axd[f'{i}'].set_ylabel('Desviación')
+        axd[f'{i}'].set_title(f'Gráfico {i}')
+    fig.suptitle('Desviación estándar por tiradas', fontsize=16)
+    plt.tight_layout()
+    plt.show(block=False)
+
+def generate_varianza_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios):
+    x1 = list(range(1,numeroDeTiradas+1))
+    fig, axd = generate_layout_por_corridas(corridas)
+    for i in range(1,corridas+1):
+        axd[f'{i}'].plot(x1, calcular_varianza_calculada(numeroElegido,valoresAleatorios[i-1],numeroDeTiradas),label='Frecuencia relativa por número de tirada', color='red')
+        axd[f'{i}'].axhline(y=calcular_varianza_esperada(numeroElegido,valoresAleatorios[i-1]),linestyle='--',label='Frecuencia relativa esperada', color='blue')
+        axd[f'{i}'].set_xlabel('Número de tirada')
+        axd[f'{i}'].set_ylabel('Valor de varianza')
+        axd[f'{i}'].set_title(f'Gráfico {i}')
+    fig.suptitle('Varianza esperada vs Varianza calculada en función del número de tiradas', fontsize=16)
+    plt.tight_layout()
+    plt.show(block=False)
+
+def calcular_filas(corridas):
+    filas = 1
+    acumulador = 0
+    for i in range(1,corridas+1):
+        acumulador += 1
+        if acumulador > 4:
+            filas += 1
+            acumulador = 0
+    return filas
 
 def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
     frecuencia_absoluta = 0
@@ -120,7 +198,6 @@ def calcular_desviacion_estandar_por_tirada(valoresAleatorios, numeroElegido):
 def calcular_desviacion_estandar_esperada(valoresAleatorios):
     desviaciones = []
     desviacionEstandar = np.std(valoresAleatorios)
-    print(f'Desviacion estandar {desviacionEstandar}')
     for _ in range(len(valoresAleatorios)):
         desviaciones.append(desviacionEstandar)
     return desviaciones
