@@ -15,8 +15,11 @@ print(f'Numero de corridas:{corridas}')
 for _ in range(corridas):
   valoresAleatorios.append(generate_random_values(numeroDeTiradas))
 
+""""
 generate_frecuencia_relativa_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios)
 generate_promedio_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios)
 generate_desviacion_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios)
 generate_varianza_plot(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios)
-plt.waitforbuttonpress()
+"""
+
+generate_all_plots(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios)

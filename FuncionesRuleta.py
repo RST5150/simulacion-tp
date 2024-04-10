@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
+NUMEROS_RULETA = 37
+VALORES_BASES = list(range(NUMEROS_RULETA))
 
 def are_arguments_ok():
     # Verificar si los argumentos enviados son correctos
@@ -25,6 +27,44 @@ def generate_random_values(numeroDeTiradas):
     # Generar los valores aleatorios entre 0 y 36 y almacenarlos en una lista
     valores = [random.randint(0, 37) for _ in range(numeroDeTiradas)]
     return valores
+
+def generate_all_plots(numeroDeTiradas,corridas,numeroElegido, valoresAleatorios):
+    x1= list(range(1,numeroDeTiradas+1))
+    figura, lista_graficos = plt.subplots(nrows=2,ncols=2,figsize=(18, 6))
+    lista_graficos[0,0].plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas),label='Frecuencia relativa esperada',linestyle='--',color='blue')
+    lista_graficos[0,1].plot(x1,calcular_promedio_esperado(numeroDeTiradas),label='Promedio esperado',linestyle='--',color='blue')
+    lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(numeroDeTiradas),label='Desviación estándar esperada',linestyle='--',color='blue')
+    lista_graficos[1,1].plot(x1,calcular_varianza_esperada(numeroDeTiradas),label='Varianza esperada',linestyle='--',color='blue')
+    for i in range(1,corridas+1):
+        lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios[i-1]), color='red')
+        lista_graficos[0,0].set_xlabel('Número de tirada')
+        lista_graficos[0,0].set_ylabel('Frecuencia relativa')
+        lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
+        lista_graficos[0,0].legend()
+        lista_graficos[0,0].grid(True)
+
+        lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(valoresAleatorios[i-1]), color='red')
+        lista_graficos[0,1].set_xlabel('Número de tirada')
+        lista_graficos[0,1].set_ylabel('Número')
+        lista_graficos[0,1].set_title('Promedio por tiradas')
+        lista_graficos[0,1].legend()
+        lista_graficos[0,1].grid(True)
+
+        lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_por_tirada(valoresAleatorios[i-1],numeroElegido), color='red')
+        lista_graficos[1,0].set_xlabel('Número de tirada')
+        lista_graficos[1,0].set_ylabel('Número')
+        lista_graficos[1,0].set_title('Promedio por tiradas')
+        lista_graficos[1,0].legend()
+        lista_graficos[1,0].grid(True)
+
+        lista_graficos[1, 1].plot(x1, calcular_varianza_calculada(numeroElegido, valoresAleatorios[i-1], numeroDeTiradas),color='red')
+        lista_graficos[1, 1].set_ylabel('Valor de varianza')
+        lista_graficos[1, 1].set_title('Varianza esperada vs Varianza calculada en función del número de tiradas')
+        lista_graficos[1, 1].legend()
+        lista_graficos[1, 1].grid(True)
+
+    plt.show()
+
     
 
 def generate_layout_por_corridas(corridas):
@@ -55,6 +95,8 @@ def generate_frecuencia_relativa_plot(numeroDeTiradas, corridas, numeroElegido ,
     fig.suptitle('Frecuencia relativa por tiradas', fontsize=16)
     plt.tight_layout()
     plt.show(block=False)
+
+
 
 
 def generate_promedio_plot(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios):
@@ -123,10 +165,10 @@ def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
     return frecuencias_relativas_por_tirada
 
 
-def calcular_frecuencia_relativa_esperada(valores_bases, tiradas):
-    frecuencia_relativa_esperada = 1 / len(valores_bases)
+def calcular_frecuencia_relativa_esperada(numeroDeTiradas):
+    frecuencia_relativa_esperada = 1 / NUMEROS_RULETA
     frecuencias_relativa_recta = []
-    for _ in tiradas:
+    for _ in range(numeroDeTiradas):
         frecuencias_relativa_recta.append(frecuencia_relativa_esperada)
     return frecuencias_relativa_recta
 
@@ -143,14 +185,13 @@ def calcular_numero_promedio_por_tirada(valoresAleatorios):
     return promedios
 
 
-def calcular_promedio_esperado(valores_bases, tiradas):
+def calcular_promedio_esperado(numeroDeTiradas):
     suma = 0
-    for valor in valores_bases:
-        suma += valor
-    promedio_esperado = suma / len(valores_bases)
     promedio_esperado_recta = []
-
-    for _ in tiradas:
+    for valor in range(NUMEROS_RULETA):
+        suma += valor
+    promedio_esperado = suma / NUMEROS_RULETA
+    for _ in range(numeroDeTiradas):
         promedio_esperado_recta.append(promedio_esperado)
     return promedio_esperado_recta
 
@@ -164,18 +205,18 @@ def calcular_desviacion_estandar_por_tirada(valoresAleatorios, numeroElegido):
     return desviaciones_por_tirada
 
 
-def calcular_desviacion_estandar_esperada(valores_bases, tiradas):
-    desviacion_estandar_esperada = ((((valores_bases[-1] - valores_bases[0] + 1)**2) - 1) / 12)**0.5
+def calcular_desviacion_estandar_esperada(tiradas):
+    desviacion_estandar_esperada = ((((VALORES_BASES[-1] - VALORES_BASES[0] + 1)**2) - 1) / 12)**0.5
     desviacion_estandar_recta = []
-    for _ in tiradas:
+    for _ in range(tiradas):
         desviacion_estandar_recta.append(desviacion_estandar_esperada)
     return desviacion_estandar_recta
 
 
-def calcular_varianza_esperada(valores_bases, tiradas):
-    varianza_esperada = (((valores_bases[-1] - valores_bases[0] + 1)**2) - 1) / 12
+def calcular_varianza_esperada(tiradas):
+    varianza_esperada = (((VALORES_BASES[-1] - VALORES_BASES[0] + 1)**2) - 1) / 12
     varianza_recta = []
-    for _ in tiradas:
+    for _ in range(tiradas):
         varianza_recta.append(varianza_esperada)
     return varianza_recta
 
