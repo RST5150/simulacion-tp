@@ -145,11 +145,12 @@ def calcular_varianza_esperada(tiradas):
 
 
 def calcular_varianza_calculada(numeroElegido, valoresAleatorios, numeroDeTiradas):
+    promedio = calcular_promedio_esperado(numeroDeTiradas)
     valores_aleatorios = np.array(valoresAleatorios)
     varianzas_calculadas = []
 
     for i in range(1, numeroDeTiradas + 1):
-        diferencias_cuadradas = (valores_aleatorios[:i] - numeroElegido) ** 2
+        diferencias_cuadradas = (valores_aleatorios[:i] - promedio[-1]) ** 2
         varianza_calculada = np.mean(diferencias_cuadradas)
         varianzas_calculadas.append(varianza_calculada)
 
