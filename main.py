@@ -6,16 +6,12 @@ parametros = get_correct_arguments()
 numeroDeTiradas = parametros[0]
 corridas = parametros[1]
 numeroElegido = parametros[2]
-
+valoresAleatorios = []
+valores_bases = list(range(37))
 print(f'Numero elegido:{numeroElegido}')
 print(f'Numero de tiradas:{numeroDeTiradas}')
 print(f'Numero de corridas:{corridas}')
 
-
 for _ in range(corridas):
-  valoresAleatorios = generate_random_values(numeroDeTiradas)
-  print(f'Promedio de numeros: {np.average(valoresAleatorios)}')
-  print(valoresAleatorios)
-  generate_all_plots(numeroDeTiradas,numeroElegido, valoresAleatorios)
-plt.waitforbuttonpress()
-  
+  valoresAleatorios.append(generate_random_values(numeroDeTiradas))
+generate_all_plots(numeroDeTiradas,corridas,numeroElegido,valoresAleatorios)
