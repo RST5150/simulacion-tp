@@ -65,7 +65,7 @@ def generate_all_plots(numeroDeTiradas,corridas,numeroElegido, valoresAleatorios
 
     plt.show()
 
-    
+
 
 def generate_layout_por_corridas(corridas):
     # Create layout
@@ -82,6 +82,7 @@ def generate_layout_por_corridas(corridas):
     fig, axd = plt.subplot_mosaic(layout)
     return fig, axd
 
+
 def generate_frecuencia_relativa_plot(numeroDeTiradas, corridas, numeroElegido ,valoresAleatorios):
     valores_bases = list(range(37))
     x1 = list(range(1, numeroDeTiradas+1))
@@ -95,8 +96,6 @@ def generate_frecuencia_relativa_plot(numeroDeTiradas, corridas, numeroElegido ,
     fig.suptitle('Frecuencia relativa por tiradas', fontsize=16)
     plt.tight_layout()
     plt.show(block=False)
-
-
 
 
 def generate_promedio_plot(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios):
