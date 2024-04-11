@@ -7,11 +7,25 @@ import math
 NUMEROS_RULETA = 37
 VALORES_BASES = list(range(NUMEROS_RULETA))
 
+
 def are_arguments_ok():
     # Verificar si los argumentos enviados son correctos
-    if len(sys.argv) != 7 or sys.argv[1] != "-c" or sys.argv[3] !='-n' or sys.argv[5]!='-e':
+    if len(sys.argv) != 7 or sys.argv[1] != "-c" or sys.argv[3] != '-n' or sys.argv[5] != '-e':
         print("Uso: python programa.py -c <cantidad de tiradas> -n <cantidad de corridas> -e <numero elegido> ")
         sys.exit(1)
+
+    # Verificar si el valor después de "-e" está dentro del rango 0-36
+    try:
+        numero_elegido = int(sys.argv[6])
+        if numero_elegido < 0 or numero_elegido > 36:
+            print("El número elegido debe estar entre 0 y 36.")
+            sys.exit(1)
+    except ValueError:
+        print("El valor después de '-e' debe ser un número entero.")
+        sys.exit(1)
+
+
+are_arguments_ok()
 
 
 def get_correct_arguments():
@@ -28,16 +42,18 @@ def generate_random_values(numeroDeTiradas):
     valores = [random.randint(0, 36) for _ in range(numeroDeTiradas)]
     return valores
 
+
 def get_cmap(n, name='hsv'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
 
-def generate_all_plots(numeroDeTiradas,corridas,numeroElegido, valoresAleatorios):
+
+def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios):
     x1= list(range(1,numeroDeTiradas+1))
     cmap = get_cmap(corridas)
     colores=['g','r','c','m','y','k','b']
-    figura, lista_graficos = plt.subplots(nrows=2,ncols=2,figsize=(18, 6))
+    figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
     lista_graficos[0,0].plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas),label='Frecuencia relativa esperada',linestyle='--',color='blue')
     lista_graficos[0,1].plot(x1,calcular_promedio_esperado(numeroDeTiradas),label='Promedio esperado',linestyle='--',color='blue')
     lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(numeroDeTiradas),label='Desviación estándar esperada',linestyle='--',color='blue')
