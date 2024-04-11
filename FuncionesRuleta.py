@@ -25,7 +25,7 @@ def get_correct_arguments():
 
 def generate_random_values(numeroDeTiradas):
     # Generar los valores aleatorios entre 0 y 36 y almacenarlos en una lista
-    valores = [random.randint(0, 37) for _ in range(numeroDeTiradas)]
+    valores = [random.randint(0, 36) for _ in range(numeroDeTiradas)]
     return valores
 
 def get_cmap(n, name='hsv'):
