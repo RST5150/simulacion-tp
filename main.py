@@ -22,4 +22,4 @@ for _ in range(corridas):
 
 billetera, resultados = jugar_ruleta(eleccion, estrategia, capital, valoresAleatorios)
 
-generate_all_plots(numeroDeTiradas, corridas, eleccion, valoresAleatorios, billetera, resultados)
+generate_all_plots(numeroDeTiradas, corridas, eleccion, valoresAleatorios, billetera, capital, resultados)

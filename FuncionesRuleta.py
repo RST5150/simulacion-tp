@@ -57,8 +57,8 @@ def are_arguments_ok():
         sys.exit(1)
 
     estrategia = sys.argv[sys.argv.index('-s') + 1]
-    if estrategia not in ['m', 'd', 'f']:
-        print("La estrategia debe ser 'm' (Martingala), 'd' (D’Alambert), o 'f' (Fibonacci).")
+    if estrategia not in ['m', 'd', 'f', 'p']:
+        print("La estrategia debe ser 'm' (Martingala), 'd' (D’Alambert), 'f' (Fibonacci) o 'p' (Paroli).")
         sys.exit(1)
 
     capital = sys.argv[sys.argv.index('-a') + 1]
@@ -97,13 +97,13 @@ def get_cmap(n, name='hsv'):
     return plt.cm.get_cmap(name, n)
 
 
-def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios, billetera, resultados):
+def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios, billetera, capital, resultados):
     x1 = list(range(1, numeroDeTiradas + 1))
     cmap = get_cmap(corridas)
     colores = ['g','r','c','m','y','k','b']
     figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
     #lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), label = 'Frecuencia relativa ap', linestyle = '--', color = 'blue')
-    lista_graficos[0,1].plot(x1, mostrar_caja_inicial(numeroDeTiradas, billetera), label = 'caja inicial', linestyle = '--', color = 'blue')
+    lista_graficos[0,1].plot(x1, mostrar_caja_inicial(numeroDeTiradas, billetera, capital), label = 'caja inicial', linestyle = '--', color = 'blue')
     for i in range(1, corridas + 1):
         color = list(np.random.choice(range(256), size=3)) 
         lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color = cmap(i-1))
@@ -243,10 +243,14 @@ def calcular_flujo_caja(numeroDeTiradas, historial, billetera):
     return flujo_caja
 
 
-def mostrar_caja_inicial(numeroDeTiradas, billetera):
+def mostrar_caja_inicial(numeroDeTiradas, billetera, capital):
     caja_inicial = []
-    for i in range(numeroDeTiradas):
-        caja_inicial.append(10000)
+    if capital == 'i':
+        for i in range(numeroDeTiradas):
+            caja_inicial.append(0)
+    else:
+        for i in range(numeroDeTiradas):
+            caja_inicial.append(10000) # Mismo valor que apuesta_inicial hard-codeado para no pasar tanto el parametro.
     return caja_inicial
 
 
@@ -350,19 +354,48 @@ def fibonacci(apuesta_inicial, eleccion, valores, billetera, esInfinito):
     return billetera, historial
 
 
+def paroli(apuesta_inicial, eleccion, valores, billetera, esInfinito):
+    apuesta = apuesta_inicial
+    racha_victorias = 0
+    for valor in valores:
+        billetera -= apuesta
+        resultado = calcular_ganancia_perdida(eleccion, valor)
+        if resultado == 0:
+            apuesta = max(apuesta / 2, apuesta_inicial) # Reduce a apuesta anterior hasta la inicial
+            historial.append(['P', billetera])
+            racha_victorias = 0
+        else:
+            billetera += apuesta * resultado
+            historial.append(['G', billetera])
+            racha_victorias += 1
+            if racha_victorias == 3:
+                apuesta = apuesta_inicial # A las tres victorias reinicia la apuesta
+            else:
+                apuesta *= 2  # Duplica la apuesta en caso de ganar
+
+        if not esInfinito and billetera < apuesta:
+            historial.append(['bancarrota', billetera])
+            break
+
+    return billetera, historial
+
+
 def jugar_ruleta(eleccion, estrategia, capital, valoresAleatorios):
     apuesta_inicial = 100
-    billetera = 10000
     if capital == 'i':
         esInfinito = True
+        billetera = 0
     else:
         esInfinito = False
+        billetera = 10000
     if estrategia == 'm':
         billetera, resultados = martingala(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
     elif estrategia == 'd':
         billetera, resultados = dalambert(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
     elif estrategia == 'f':
         billetera, resultados = fibonacci(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
+    elif estrategia == 'p':
+        billetera, resultados = paroli(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
     else:
         print("Estrategia no válida.")
         sys.exit(1)
