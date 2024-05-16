@@ -8,6 +8,8 @@ NUMEROS_RULETA = 37
 VALORES_BASES = list(range(NUMEROS_RULETA))
 ROJOS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36]
 NEGROS = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]
+SUCESION_FIB = []
+historial = []
 
 FILAS = {
     1: [1, 2, 3],
@@ -32,8 +34,8 @@ COLUMNAS = {
 
 
 def are_arguments_ok():
-    if len(sys.argv) != 7 and len(sys.argv) != 9:
-        print("Uso: python programa.py -c <cantidad de tiradas> -n <cantidad de corridas> [-e <numero elegido>] -s <estrategia> -a <tipo de capital>")
+    if len(sys.argv) != 9 and len(sys.argv) != 11:
+        print("Uso: python3 main.py -c <cantidad de tiradas> -n <cantidad de corridas> [-e <numero elegido>] -s <estrategia> -a <tipo de capital>")
         sys.exit(1)
 
     if '-e' in sys.argv:
@@ -66,22 +68,21 @@ def are_arguments_ok():
 
 
 def get_correct_arguments():
-    #num_valores = int(sys.argv[2])
-    #corridas = int(sys.argv[4])
-    #estrategia = sys.argv[sys.argv.index('-s') + 1]
-    #capital = sys.argv[sys.argv.index('-a') + 1]
+    num_valores = int(sys.argv[2])
+    corridas = int(sys.argv[4])
+    estrategia = sys.argv[sys.argv.index('-s') + 1]
+    capital = sys.argv[sys.argv.index('-a') + 1]
 
-    num_valores = 1000
-    corridas = 1
-    estrategia = 'm'
-    capital = 'i'
+    #num_valores = 1000
+    #corridas = 1
+    #estrategia = 'm'
+    #capital = 'i'
 
     if '-e' in sys.argv:
         eleccion = int(sys.argv[sys.argv.index('-e') + 1])
     else:
-        eleccion = None
+        eleccion = 'rojo'
 
-    eleccion = 'rojo'
     return num_valores, corridas, eleccion, estrategia, capital
 
 
@@ -96,43 +97,35 @@ def get_cmap(n, name='hsv'):
     return plt.cm.get_cmap(name, n)
 
 
-def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios):
-    x1= list(range(1,numeroDeTiradas+1))
+def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios, billetera, resultados):
+    x1 = list(range(1, numeroDeTiradas + 1))
     cmap = get_cmap(corridas)
-    colores=['g','r','c','m','y','k','b']
+    colores = ['g','r','c','m','y','k','b']
     figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
-    lista_graficos[0,0].plot(x1,calcular_frecuencia_relativa_esperada(numeroDeTiradas),label='Frecuencia relativa esperada',linestyle='--',color='blue')
-    lista_graficos[0,1].plot(x1,calcular_promedio_esperado(numeroDeTiradas),label='Promedio esperado',linestyle='--',color='blue')
-    lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_esperada(numeroDeTiradas),label='Desviación estándar esperada',linestyle='--',color='blue')
-    lista_graficos[1,1].plot(x1,calcular_varianza_esperada(numeroDeTiradas),label='Varianza esperada',linestyle='--',color='blue')
-    for i in range(1,corridas+1):
+    #lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), label = 'Frecuencia relativa ap', linestyle = '--', color = 'blue')
+    lista_graficos[0,1].plot(x1, mostrar_caja_inicial(numeroDeTiradas, billetera), label = 'caja inicial', linestyle = '--', color = 'blue')
+    for i in range(1, corridas + 1):
         color = list(np.random.choice(range(256), size=3)) 
-        lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios[i-1]), color=cmap(i-1))
-        lista_graficos[0,0].set_xlabel('Número de tirada')
-        lista_graficos[0,0].set_ylabel('Frecuencia relativa')
-        lista_graficos[0,0].set_title('Frecuencia relativa por tiradas')
+        lista_graficos[0,0].plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color = cmap(i-1))
+        lista_graficos[0,0].set_xlabel('n (número de tiradas)')
+        lista_graficos[0,0].set_ylabel('fr (frecuencia relativa)')
+        lista_graficos[0,0].set_title('frsa (frecuencia relativa de apuesta favorable)')
         lista_graficos[0,0].legend()
         lista_graficos[0,0].grid(True)
 
-        lista_graficos[0,1].plot(x1,calcular_numero_promedio_por_tirada(valoresAleatorios[i-1]), color=cmap(i-1))
-        lista_graficos[0,1].set_xlabel('Número de tirada')
-        lista_graficos[0,1].set_ylabel('Número')
-        lista_graficos[0,1].set_title('Promedio por tiradas')
+        lista_graficos[0,1].plot(x1, calcular_flujo_caja(numeroDeTiradas, resultados, billetera), color = cmap(i-1))
+        lista_graficos[0,1].set_xlabel('n (número de tiradas)')
+        lista_graficos[0,1].set_ylabel('cc (cantidad de capital)')
+        lista_graficos[0,1].set_title('fc (flujo de caja)')
         lista_graficos[0,1].legend()
         lista_graficos[0,1].grid(True)
 
-        lista_graficos[1,0].plot(x1,calcular_desviacion_estandar_por_tirada(valoresAleatorios[i-1],numeroElegido), color=cmap(i-1))
-        lista_graficos[1,0].set_xlabel('Número de tirada')
-        lista_graficos[1,0].set_ylabel('Número')
-        lista_graficos[1,0].set_title('Desviacion estandar por tiradas')
-        lista_graficos[1,0].legend()
-        lista_graficos[1,0].grid(True)
-
-        lista_graficos[1, 1].plot(x1, calcular_varianza_calculada(numeroElegido, valoresAleatorios[i-1], numeroDeTiradas),color=cmap(i-1))
-        lista_graficos[1, 1].set_ylabel('Valor de varianza')
-        lista_graficos[1, 1].set_title('Varianza esperada vs Varianza calculada en función del número de tiradas')
-        lista_graficos[1, 1].legend()
-        lista_graficos[1, 1].grid(True)
+        # lista_graficos[1,0].plot(x1,)
+        # lista_graficos[1,0].set_xlabel('Otro')
+        # lista_graficos[1,0].set_ylabel('Otro')
+        # lista_graficos[1,0].set_title('Otro')
+        # lista_graficos[1,0].legend()
+        # lista_graficos[1,0].grid(True)
 
     plt.tight_layout()
     plt.show()
@@ -220,6 +213,43 @@ def calcular_varianza_calculada(numeroElegido, valoresAleatorios, numeroDeTirada
     return varianzas_calculadas
 
 
+def calcular_frecuencias_relativas_apuestas(numeroDeTiradas, historial):
+    frecuencia_absoluta = 0
+    numero_tirada = 0
+    frecuencias_relativas_apuestas = []
+    for i in range(numeroDeTiradas):
+        numero_tirada += 1
+        if i < len(historial):
+            if historial[i][0] == 'G':
+                frecuencia_absoluta += 1
+            frecuencia_relativa = frecuencia_absoluta / numero_tirada
+            frecuencias_relativas_apuestas.append(frecuencia_relativa)
+        else:
+            #if i == len(historial):
+            #    indice_ultima_caja = i - 1
+            frecuencias_relativas_apuestas.append(0)
+    return frecuencias_relativas_apuestas
+
+
+def calcular_flujo_caja(numeroDeTiradas, historial, billetera):
+    flujo_caja = []
+    for i in range(numeroDeTiradas):
+        if i < len(historial):
+            flujo_caja.append(historial[i][1])
+        else:
+            if i == len(historial):
+                indice_ultima_caja = i - 1
+            flujo_caja.append(historial[indice_ultima_caja][1])
+    return flujo_caja
+
+
+def mostrar_caja_inicial(numeroDeTiradas, billetera):
+    caja_inicial = []
+    for i in range(numeroDeTiradas):
+        caja_inicial.append(10000)
+    return caja_inicial
+
+
 def calcular_ganancia_perdida(eleccion, valor):
     if eleccion == 'negro' and valor in NEGROS:
         return 2
@@ -237,13 +267,12 @@ def calcular_ganancia_perdida(eleccion, valor):
         return 0
 
 
-def martingala(apuesta_inicial, eleccion, valores, billetera):
+def martingala(apuesta_inicial, eleccion, valores, billetera, esInfinito):
     apuesta = apuesta_inicial
-    historial = []
     for valor in valores:
+        billetera -= apuesta
         resultado = calcular_ganancia_perdida(eleccion, valor)
         if resultado == 0:
-            billetera -= apuesta
             apuesta *= 2  # Duplica la apuesta en caso de pérdida
             historial.append(['P', billetera])
         else:
@@ -251,62 +280,94 @@ def martingala(apuesta_inicial, eleccion, valores, billetera):
             apuesta = apuesta_inicial  # Vuelve a la apuesta inicial en caso de ganancia
             historial.append(['G', billetera])
 
-        if billetera < apuesta:
+        if not esInfinito and billetera < apuesta:
+            historial.append(['bancarrota', billetera])
             break
 
     return billetera, historial
 
 
-def dalambert(apuesta_inicial, numero_elegido, valores):
+def dalambert(apuesta_inicial, eleccion, valores, billetera, esInfinito):
     capital = apuesta_inicial
     ganancias = 0
     perdidas = 0
     apuesta = apuesta_inicial
     for valor in valores:
-        resultado = calcular_ganancia_perdida(numero_elegido, valor)
+        billetera -= apuesta
+        resultado = calcular_ganancia_perdida(eleccion, valor)
         if resultado == 0:
             perdidas += 1
             apuesta += 1  # Incrementa la apuesta en 1 en caso de pérdida
+            historial.append(['P', billetera])
         else:
             ganancias += resultado
             apuesta = max(apuesta - 1, apuesta_inicial)  # Reduce la apuesta en 1 en caso de ganancia, al menos hasta la apuesta inicial
-        capital -= apuesta  # Deduce la apuesta del capital
-    return ganancias, perdidas
+            billetera += apuesta * resultado
+            historial.append(['G', billetera])
+        if not esInfinito and billetera < apuesta:
+            historial.append(['bancarrota', billetera])
+            break
+    return billetera, historial
 
 
-def fibonacci(apuesta_inicial, numero_elegido, valores):
-    capital = apuesta_inicial
+def generar_sucesion(apuesta_inicial, tiradas):
+    n = apuesta_inicial
+    n_menos_1 = apuesta_inicial
+    n_menos_2 = 0
+    for _ in range(tiradas):
+        SUCESION_FIB.append(n)
+        n_menos_2 = n_menos_1
+        n_menos_1 = n
+        n += n_menos_2
+
+
+def fibonacci(apuesta_inicial, eleccion, valores, billetera, esInfinito):
+    generar_sucesion(apuesta_inicial, 500) # Valor hard-codeado para no pasar tanto el parametro de tiradas, dificil de alcanzar de todos modos.
     ganancias = 0
     perdidas = 0
     apuesta_actual = apuesta_inicial
-    apuesta_anterior = 0
     for valor in valores:
-        resultado = calcular_ganancia_perdida(numero_elegido, valor)
+        indice_apuesta = SUCESION_FIB.index(apuesta_actual)
+        billetera -= apuesta_actual
+        resultado = calcular_ganancia_perdida(eleccion, valor)
         if resultado == 0:
             perdidas += 1
-            apuesta_temporal = apuesta_actual
-            apuesta_actual += apuesta_anterior
-            apuesta_anterior = apuesta_temporal
+            apuesta_actual = SUCESION_FIB[indice_apuesta + 1]
+            historial.append(['P', billetera])
         else:
+            billetera += apuesta_actual * resultado
             ganancias += resultado
-            apuesta_actual = apuesta_inicial
-            apuesta_anterior = 0
-        capital -= apuesta_actual
-    return ganancias, perdidas
+            historial.append(['G', billetera])
+            if indice_apuesta > 1:
+                apuesta_actual = SUCESION_FIB[indice_apuesta - 2]
+            else:
+                apuesta_actual = SUCESION_FIB[0]
+        if not esInfinito and billetera < apuesta_actual:
+            historial.append(['bancarrota', billetera])
+            break
+    print(f"Historial length: {len(historial)}")
+
+    return billetera, historial
 
 
 def jugar_ruleta(eleccion, estrategia, capital, valoresAleatorios):
-    apuesta_inicial = 1000
+    apuesta_inicial = 100
     billetera = 10000
+    if capital == 'i':
+        esInfinito = True
+    else:
+        esInfinito = False
     if estrategia == 'm':
-        billetera, resultados = martingala(apuesta_inicial, eleccion, valoresAleatorios, billetera)
+        billetera, resultados = martingala(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
     elif estrategia == 'd':
-        ganancias, perdidas = dalambert(apuesta_inicial, eleccion, valoresAleatorios)
+        billetera, resultados = dalambert(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
     elif estrategia == 'f':
-        ganancias, perdidas = fibonacci(apuesta_inicial, eleccion, valoresAleatorios)
+        billetera, resultados = fibonacci(apuesta_inicial, eleccion, valoresAleatorios, billetera, esInfinito)
     else:
         print("Estrategia no válida.")
         sys.exit(1)
 
     print(f"Billetera final: {billetera}")
     print(f"Historial: {resultados}")
+
+    return billetera, resultados
