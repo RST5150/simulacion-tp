@@ -112,22 +112,33 @@ def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatori
     ax.set_ylabel('fr (frecuencia relativa)')
     fig_fr.suptitle('frsa (frecuencia relativa de apuesta favorable)')
     ax.grid(True)
+    ax.bar(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color='blue')
+    ax.set_xlim(0, 10)
 
     fig_fc = plt.figure()
+    fig_fc = plt.gcf()
     ax2 = fig_fc.add_subplot(111)
     ax2.set_xlabel('n (número de tiradas)')
     ax2.set_ylabel('cc (cantidad de capital)')
     fig_fc.suptitle('fc (flujo de caja)')
     ax2.grid(True)
 
+ 
     for i in range(1, corridas + 1):
+        fig_all = plt.figure()
+        fig_all = plt.gcf()
+        ax3 = fig_all.add_subplot(111)
         color = list(np.random.choice(range(256), size=3)) 
-        ax.plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color = cmap(i-1), label='Frecuencia relativa apuesta')
-        ax2.plot(x1, calcular_flujo_caja(numeroDeTiradas, resultados, billetera), color = cmap(i-1), label='Flujo de caja')
+        #ax.plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color = cmap(i-1), label='Frecuencia relativa apuesta')
+        ax3.plot(x1, calcular_flujo_caja(numeroDeTiradas, resultados, billetera), color = cmap(i-1), label='Flujo de caja')
+        ax3.set_xlabel('n (número de tiradas)')
+        ax3.set_ylabel('cc (cantidad de capital)')
+        fig_all.suptitle('fc (flujo de caja de todas las corridas)')
+        fig_all.legend()
+        ax3.grid(True)
 
     fig_fr.legend()
     fig_fc.legend()
-
     plt.show()
 
 
