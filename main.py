@@ -115,12 +115,14 @@ def estrategia_fibonacci(tiradas, capital_infinito, monto_inicial, tipo_apuesta,
 
     return historial_capital, frecuencia_ganadora
 
+
 def estrategia_paroli(tiradas, capital_infinito, monto_inicial, tipo_apuesta, valor_apuesta, apuesta_inicial):
     capital = monto_inicial
     historial_capital = []
     frecuencia_ganadora = []
     monto_apuesta = apuesta_inicial
     tiradas_para_ganar = 0
+    victorias_consecutivas = 0
 
     for _ in range(tiradas):
         numero_ganador = ruleta()
@@ -130,14 +132,19 @@ def estrategia_paroli(tiradas, capital_infinito, monto_inicial, tipo_apuesta, va
         gano, cuanto = es_apuesta_ganada(numero_ganador, tipo_apuesta, valor_apuesta)
         if gano:
             capital += monto_apuesta * cuanto
-            monto_apuesta = apuesta_inicial  # Reiniciar a la apuesta inicial después de una victoria
             frecuencia_ganadora.append(tiradas_para_ganar)
             tiradas_para_ganar = 0
+            if victorias_consecutivas < 3:
+                monto_apuesta *= 2
+                victorias_consecutivas += 1
+            else:
+                monto_apuesta = apuesta_inicial
+                victorias_consecutivas = 0
         else:
-            monto_apuesta *= 2  # Duplicar la apuesta después de una pérdida
+            monto_apuesta = apuesta_inicial
+            victorias_consecutivas = 0
             if not capital_infinito and capital < monto_apuesta:
                 break
-
         historial_capital.append(capital)
 
     return historial_capital, frecuencia_ganadora
