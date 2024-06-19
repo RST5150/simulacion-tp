@@ -29,7 +29,7 @@ def es_apuesta_ganada(numero_ganador, tipo_apuesta, valor_apuesta):
     return False, 0
 
 
-def estrategia_martinelli(tiradas, capital_infinito, monto_inicial, tipo_apuesta, valor_apuesta, apuesta_inicial):
+def estrategia_martingala(tiradas, capital_infinito, monto_inicial, tipo_apuesta, valor_apuesta, apuesta_inicial):
     capital = monto_inicial
     historial_capital = []
     frecuencia_ganadora = []
@@ -115,6 +115,32 @@ def estrategia_fibonacci(tiradas, capital_infinito, monto_inicial, tipo_apuesta,
 
     return historial_capital, frecuencia_ganadora
 
+def estrategia_paroli(tiradas, capital_infinito, monto_inicial, tipo_apuesta, valor_apuesta, apuesta_inicial):
+    capital = monto_inicial
+    historial_capital = []
+    frecuencia_ganadora = []
+    monto_apuesta = apuesta_inicial
+    tiradas_para_ganar = 0
+
+    for _ in range(tiradas):
+        numero_ganador = ruleta()
+        tiradas_para_ganar += 1
+        capital -= monto_apuesta
+
+        gano, cuanto = es_apuesta_ganada(numero_ganador, tipo_apuesta, valor_apuesta)
+        if gano:
+            capital += monto_apuesta * cuanto
+            monto_apuesta = apuesta_inicial  # Reiniciar a la apuesta inicial después de una victoria
+            frecuencia_ganadora.append(tiradas_para_ganar)
+            tiradas_para_ganar = 0
+        else:
+            monto_apuesta *= 2  # Duplicar la apuesta después de una pérdida
+            if not capital_infinito and capital < monto_apuesta:
+                break
+
+        historial_capital.append(capital)
+
+    return historial_capital, frecuencia_ganadora
 
 def main():
     parser = argparse.ArgumentParser(description='Simulación de Ruleta Americana con Estrategias de Apuesta')
@@ -122,8 +148,8 @@ def main():
     parser.add_argument('-n', type=int, required=True, help='Cantidad de corridas')
     parser.add_argument('-e', type=int, help='Número elegido')
     parser.add_argument('-d', type=str, help='Color o fila elegida')
-    parser.add_argument('-s', type=str, required=True, choices=['m', 'd', 'f'],
-                        help='Estrategia (m: Martinelli, d: D\'Alembert, f: Fibonacci)')
+    parser.add_argument('-s', type=str, required=True, choices=['m', 'd', 'f', 'p'],
+                        help='Estrategia (m: Martingala, d: D\'Alembert, f: Fibonacci)')
     parser.add_argument('-a', type=str, required=True, choices=['i', 'f'],
                         help='Tipo de capital (i: infinito, f: finito)')
     parser.add_argument('-m', type=int, help='Monto de billetera inicial')
@@ -149,21 +175,27 @@ def main():
         raise ValueError("Debe especificar -e o -d")
 
     capital_infinito = args.a == 'i'
-    monto_inicial = args.m
+    if capital_infinito:
+        monto_inicial = 0
+    else:
+        monto_inicial = args.m
     apuesta_inicial = args.x
 
     resultados_historial = []
     resultados_frecuencia = []
 
     if args.s == 'm':
-        estrategia = estrategia_martinelli
-        nombre = 'Martinelli'
+        estrategia = estrategia_martingala
+        nombre = 'Martingala'
     elif args.s == 'd':
         estrategia = estrategia_dalembert
         nombre = 'Dalember'
     elif args.s == 'f':
         estrategia = estrategia_fibonacci
         nombre = 'Fibonacci'
+    elif args.s == 'p':
+        estrategia = estrategia_paroli
+        nombre = 'Paroli'
 
     if capital_infinito:
         capital_infinito_nombre = 'infinito'
@@ -182,7 +214,10 @@ def main():
         resultados_frecuencia.append(frecuencia_ganadora)
 
     # Añadir línea rayada en el monto inicial de la cartera
-    ax1.axhline(y=monto_inicial, color='r', linestyle='--', linewidth=2, zorder=10, label='Monto inicial')
+    if capital_infinito:
+        ax1.axhline(y=0, color='r', linestyle='--', linewidth=2, zorder=10, label='Monto inicial')
+    else:
+        ax1.axhline(y=monto_inicial, color='r', linestyle='--', linewidth=2, zorder=10, label='Monto inicial')
 
     # Graficar historial de capital
     for j, resultado in enumerate(resultados_historial):
@@ -193,7 +228,6 @@ def main():
     ax1.set_ylabel('Monto')
     ax1.set_title(f'Historial de Capital estrategia: {nombre}, con capital {capital_infinito_nombre}')
     ax1.legend()
-
     # Graficar frecuencia relativa de éxito acumulada
     colores = plt.cm.get_cmap('tab10', args.n)
 
