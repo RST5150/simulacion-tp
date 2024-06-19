@@ -92,13 +92,14 @@ def generate_random_values(numeroDeTiradas):
 
 
 def get_cmap(n, name='hsv'):
-    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
 
 
-def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios, billetera, capital, resultados):
+def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatorios, billetera, capital, resultados, corridaActual):
     x1 = list(range(1, numeroDeTiradas + 1))
+    x2 = list(range(1, len(calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados)) + 1))
     cmap = get_cmap(corridas)
     colores = ['g','r','c','m','y','k','b']
     #figura, lista_graficos = plt.subplots(nrows=2, ncols=2, figsize=(18, 6))
@@ -112,33 +113,37 @@ def generate_all_plots(numeroDeTiradas, corridas, numeroElegido, valoresAleatori
     ax.set_ylabel('fr (frecuencia relativa)')
     fig_fr.suptitle('frsa (frecuencia relativa de apuesta favorable)')
     ax.grid(True)
-    ax.bar(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color='blue')
-    ax.set_xlim(0, 10)
+    ax.bar(x2, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color='blue')
+    #ax.set_xlim(0, 10)
 
     fig_fc = plt.figure()
-    fig_fc = plt.gcf()
+    #fig_fc = plt.gcf()
     ax2 = fig_fc.add_subplot(111)
+    ax2.plot(x1, calcular_flujo_caja(numeroDeTiradas, resultados, corridaActual), color = cmap(1), label='Flujo de caja')
     ax2.set_xlabel('n (número de tiradas)')
     ax2.set_ylabel('cc (cantidad de capital)')
     fig_fc.suptitle('fc (flujo de caja)')
     ax2.grid(True)
 
- 
-    for i in range(1, corridas + 1):
-        fig_all = plt.figure()
-        fig_all = plt.gcf()
-        ax3 = fig_all.add_subplot(111)
-        color = list(np.random.choice(range(256), size=3)) 
-        #ax.plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color = cmap(i-1), label='Frecuencia relativa apuesta')
-        ax3.plot(x1, calcular_flujo_caja(numeroDeTiradas, resultados, billetera), color = cmap(i-1), label='Flujo de caja')
-        ax3.set_xlabel('n (número de tiradas)')
-        ax3.set_ylabel('cc (cantidad de capital)')
-        fig_all.suptitle('fc (flujo de caja de todas las corridas)')
-        fig_all.legend()
-        ax3.grid(True)
-
     fig_fr.legend()
     fig_fc.legend()
+    plt.show()
+
+def generate_final_plots(numeroDeTiradas, corridas, resultados):
+    x3 = list(range(1, numeroDeTiradas * corridas + 1))
+    cmap = get_cmap(corridas)
+    #for i in range(1, corridas + 1):
+    fig_all = plt.figure()
+    fig_all = plt.gcf()
+    ax3 = fig_all.add_subplot(111)
+    color = list(np.random.choice(range(256), size=3))
+    #ax.plot(x1, calcular_frecuencias_relativas_apuestas(numeroDeTiradas, resultados), color = cmap(i-1), label='Frecuencia relativa apuesta')
+    ax3.plot(x3, calcular_flujo_caja_total(numeroDeTiradas, resultados, corridas), color = cmap(1), label='Flujo de caja')
+    ax3.set_xlabel('n (número de tiradas)')
+    ax3.set_ylabel('cc (cantidad de capital)')
+    fig_all.suptitle('fc (flujo de caja de todas las corridas)')
+    fig_all.legend()
+    ax3.grid(True)
     plt.show()
 
 
@@ -151,7 +156,7 @@ def calcular_frecuencias_relativas_por_tiradas(numeroElegido,valoresAleatorios):
         if numeroElegido == numero:
             frecuencia_absoluta += 1
         frecuencia_relativa = frecuencia_absoluta / numero_tirada
-        frecuencias_relativas_por_tirada.append(frecuencia_relativa)  
+        frecuencias_relativas_por_tirada.append(frecuencia_relativa)
     return frecuencias_relativas_por_tirada
 
 
@@ -225,32 +230,82 @@ def calcular_varianza_calculada(numeroElegido, valoresAleatorios, numeroDeTirada
 
 
 def calcular_frecuencias_relativas_apuestas(numeroDeTiradas, historial):
-    frecuencia_absoluta = 0
+    frecuencia_absoluta = 1
     numero_tirada = 0
     frecuencias_relativas_apuestas = []
+    frecues = []
+
+    for _ in range(numeroDeTiradas):
+        frecues.append(-1)
+
     for i in range(numeroDeTiradas):
         numero_tirada += 1
         if i < len(historial):
             if historial[i][0] == 'G':
+                try:
+                    if frecues[frecuencia_absoluta] == -1:
+                        frecues[frecuencia_absoluta] = 1
+                    else:
+                        frecues[frecuencia_absoluta] += 1
+                except IndexError as e:
+                    frecues[frecuencia_absoluta] = 1
+                #frecuencia_relativa = frecuencia_absoluta / len(historial)
+                frecuencia_absoluta = 1
+            else:
                 frecuencia_absoluta += 1
-            frecuencia_relativa = frecuencia_absoluta / numero_tirada
-            frecuencias_relativas_apuestas.append(frecuencia_relativa)
-        else:
+        #else:
             #if i == len(historial):
             #    indice_ultima_caja = i - 1
-            frecuencias_relativas_apuestas.append(0)
+    for f in frecues:
+        if f != -1:
+            fr = f / len(historial)
+            frecuencias_relativas_apuestas.append(fr)
+
     return frecuencias_relativas_apuestas
 
 
-def calcular_flujo_caja(numeroDeTiradas, historial, billetera):
+def calcular_flujo_caja(numeroDeTiradas, historial, corridaActual):
     flujo_caja = []
+    e = -1
+    for _ in range(corridaActual):
+        for _ in range(numeroDeTiradas):
+            e += 1
+            if historial[e][0] == 'bancarrota':
+                break
+
     for i in range(numeroDeTiradas):
-        if i < len(historial):
-            flujo_caja.append(historial[i][1])
-        else:
-            if i == len(historial):
-                indice_ultima_caja = i - 1
-            flujo_caja.append(historial[indice_ultima_caja][1])
+        e += 1
+        if e < len(historial) and historial[e][0] != 'bancarrota':
+            flujo_caja.append(historial[e][1])
+        elif historial[e][0] == 'bancarrota':
+            indice_ultima_caja = e - 1
+            for j in range(numeroDeTiradas - i):
+                flujo_caja.append(historial[indice_ultima_caja][1])
+            break
+
+    return flujo_caja
+
+def calcular_flujo_caja_total(numeroDeTiradas, historial, corridas):
+    flujo_caja = []
+    i = -1
+    indice_ultima_caja = -1
+    for n in range(corridas):
+        for k in range(numeroDeTiradas * n, numeroDeTiradas * (n + 1)):
+            i += 1
+            if i < len(historial):
+                if historial[i][0] != 'bancarrota':
+                    flujo_caja.append(historial[i][1])
+                else:
+                    indice_ultima_caja = i - 1
+                    for _ in range(numeroDeTiradas * (n + 1) - k):
+                        flujo_caja.append(historial[indice_ultima_caja][1])
+                    break
+            else:
+                print(f'i se pasó de len historial: {i}')
+                if indice_ultima_caja != -1:
+                    for _ in range(numeroDeTiradas * (n + 1) - k):
+                        flujo_caja.append(historial[indice_ultima_caja][1])
+                break
     return flujo_caja
 
 
