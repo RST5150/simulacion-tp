@@ -209,24 +209,20 @@ def main():
     else:
         capital_infinito_nombre = 'finito'
 
-    # Crear subplots
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
-
     for i in range(args.n):
-        historial_capital, frecuencia_ganadora = estrategia(args.c, capital_infinito, monto_inicial, tipo_apuesta,
-                                                            valor_apuesta, apuesta_inicial)
+        historial_capital, frecuencia_ganadora = estrategia(args.c, capital_infinito, monto_inicial, tipo_apuesta, valor_apuesta, apuesta_inicial)
         if not frecuencia_ganadora:
             frecuencia_ganadora.append(-1)
         resultados_historial.append(historial_capital)
         resultados_frecuencia.append(frecuencia_ganadora)
 
-    # Añadir línea rayada en el monto inicial de la cartera
+    # Crear gráfica de historial de capital
+    fig1, ax1 = plt.subplots(figsize=(10, 8))
     if capital_infinito:
         ax1.axhline(y=0, color='r', linestyle='--', linewidth=2, zorder=10, label='Monto inicial')
     else:
         ax1.axhline(y=monto_inicial, color='r', linestyle='--', linewidth=2, zorder=10, label='Monto inicial')
 
-    # Graficar historial de capital
     for j, resultado in enumerate(resultados_historial):
         ax1.plot(resultado, label=f'Corrida {j + 1}')
         ax1.plot(len(resultado) - 1, resultado[-1], 'o', color='black', zorder=10)
@@ -235,7 +231,13 @@ def main():
     ax1.set_ylabel('Monto')
     ax1.set_title(f'Historial de Capital estrategia: {nombre}, con capital {capital_infinito_nombre}')
     ax1.legend()
-    # Graficar frecuencia relativa de éxito acumulada
+    plt.tight_layout()
+
+    nombre_archivo_capital = f"historial_de_capital_estrategia_{nombre}_capital_{capital_infinito_nombre}_c_{args.c}_n_{args.n}_m_{monto_inicial}_x_{apuesta_inicial}.png"
+    fig1.savefig(nombre_archivo_capital)
+
+    # Crear gráfica de frecuencia relativa
+    fig2, ax2 = plt.subplots(figsize=(10, 8))
     colores = plt.cm.get_cmap('tab10', args.n)
 
     for j, frecuencia_ganadora in enumerate(resultados_frecuencia):
@@ -251,7 +253,6 @@ def main():
         ax2.bar(tiradas, frecuencias_relativas, width=1, edgecolor="black", linewidth=0.7, alpha=0.2,
                 label=f'Corrida {j + 1}')
 
-    # Ajustar el rango del eje X para mostrar todos los números enteros excluyendo el cero
     max_tirada = max(tiradas)
     ax2.set_xlim(left=0.5, right=max_tirada + 0.5)
     ax2.set_xticks(range(1, max_tirada + 1))
@@ -260,10 +261,10 @@ def main():
     ax2.set_ylabel('Frecuencia relativa')
     ax2.set_title('Frecuencia relativa de obtener la apuesta ganadora')
     ax2.legend()
-
     plt.tight_layout()
-    plt.show()
 
+    nombre_archivo_frecuencia = f"frecuencia_relativa_estrategia_{nombre}_capital_{capital_infinito_nombre}_c_{args.c}_n_{args.n}_m_{monto_inicial}_x_{apuesta_inicial}.png"
+    fig2.savefig(nombre_archivo_frecuencia)
 
 if __name__ == "__main__":
     main()
